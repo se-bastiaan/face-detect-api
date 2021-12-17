@@ -11,7 +11,7 @@ variable "package_name" {
 }
 
 variable "install_dependencies" {
-  type = bool
+  type    = bool
   default = false
 }
 

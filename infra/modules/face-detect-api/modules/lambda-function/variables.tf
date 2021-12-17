@@ -40,11 +40,11 @@ variable "layers" {
 }
 
 variable "timeout" {
-  type = number
+  type    = number
   default = 30
 }
 
 variable "memory_size" {
-  type = number
+  type    = number
   default = 256
 }

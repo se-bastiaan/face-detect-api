@@ -12,9 +12,9 @@ provider "aws" {
 }
 
 module "face_detect_api" {
-  source = "../../modules/face-detect-api"
-  stage  = "develop"
-  tags   = var.aws_tags
+  source      = "../../modules/face-detect-api"
+  stage       = "develop"
+  tags        = var.aws_tags
   domain_name = var.domain_name
-  prefix = var.prefix
+  prefix      = var.prefix
 }

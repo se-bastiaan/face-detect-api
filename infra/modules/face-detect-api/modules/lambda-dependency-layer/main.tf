@@ -8,18 +8,18 @@ module "lambda_layer" {
   compatible_runtimes = ["python3.9"]
 
   source_path = [
-  {
+    {
       path = "${path.module}"
-    
-    commands = [
+
+      commands = [
         "cd `mktemp -d`",
         "mkdir python",
-      "docker run --rm -v $(pwd):/build -w /build mlupin/docker-lambda:python3.9-build pip install ${var.install_dependencies ? "" : "--no-dependencies"} --target=./python ${var.package_name}",
-      ":zip ./python"
-    ]
+        "docker run --rm -v $(pwd):/build -w /build mlupin/docker-lambda:python3.9-build pip install ${var.install_dependencies ? "" : "--no-dependencies"} --target=./python ${var.package_name}",
+        ":zip ./python"
+      ]
   }]
-  
+
   store_on_s3 = true
   s3_bucket   = var.bucket
-  tags = var.tags
+  tags        = var.tags
 }

@@ -11,7 +11,7 @@ module "lambda_function" {
   memory_size   = var.memory_size
   timeout       = var.timeout
 
-  publish = true
+  publish     = true
   store_on_s3 = true
   s3_bucket   = var.bucket
 
