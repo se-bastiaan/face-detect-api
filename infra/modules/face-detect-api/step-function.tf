@@ -9,6 +9,7 @@ module "step_function" {
         "Type" : "Map",
         "ItemsPath" : "$.images",
         "ResultPath" : "$.images",
+        "OutputPath": "$.callback",
         "MaxConcurrency" : 50,
         "Iterator" : {
           "StartAt" : "Obtain-Encodings",
@@ -33,7 +34,8 @@ module "step_function" {
                 }
               },
               "End" : true,
-              "ResultPath" : "$.DynamoDB"
+              "ResultSelector": {},
+              "ResultPath" : "$"
             }
           }
         },
@@ -42,6 +44,10 @@ module "step_function" {
       "Send-Callback" : {
         "Type" : "Task",
         "Resource" : "${module.send_callback_function.function_arn}",
+        "Parameters": {
+            "callback.$": "$",
+            "executionId.$": "$$.Execution.Id"
+        }
         "End" : true
       }
     }
