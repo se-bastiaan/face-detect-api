@@ -3,23 +3,45 @@ module "step_function" {
 
   name = "${var.prefix}-processing"
   definition = jsonencode({
-    "StartAt" : "Process-All",
+    "StartAt" : "Process-Images",
     "States" : {
-      "Process-All" : {
+      "Process-Images" : {
         "Type" : "Map",
         "ItemsPath" : "$.images",
         "ResultPath" : "$.images",
         "MaxConcurrency" : 50,
         "Iterator" : {
-          "StartAt" : "Process",
+          "StartAt" : "Obtain-Encodings",
           "States" : {
-            "Process" : {
+            "Obtain-Encodings" : {
               "Type" : "Task",
               "Resource" : "${module.face_recognition_function.function_arn}",
-              "End" : true
+              "Next" : "Save-Data"
+            },
+            "Save-Data" : {
+              "Type" : "Task",
+              "Resource" : "arn:aws:states:::dynamodb:putItem",
+              "Parameters" : {
+                "TableName" : "${module.results_table.dynamodb_table_id}",
+                "Item" : {
+                  "execution" : {
+                    "S.$" : "$$.Execution.Id"
+                  },
+                  "url.$" : "$.url",
+                  "id.$" : "$.id",
+                  "encodings.$" : "$.encodings"
+                }
+              },
+              "End" : true,
+              "ResultPath" : "$.DynamoDB"
             }
           }
         },
+        "Next" : "Send-Callback"
+      },
+      "Send-Callback" : {
+        "Type" : "Task",
+        "Resource" : "${module.send_callback_function.function_arn}",
         "End" : true
       }
     }
@@ -30,9 +52,13 @@ module "step_function" {
     level                  = "ALL"
   }
 
+  # This may cause problems the first time that this module is created, run the code without this section and then with to bypass
   service_integrations = {
     lambda = {
-      lambda = [module.face_recognition_function.function_arn]
+      lambda = [module.face_recognition_function.function_arn, module.send_callback_function.function_arn]
+    }
+    dynamodb = {
+      dynamodb = [module.results_table.dynamodb_table_arn]
     }
   }
 
@@ -40,7 +66,7 @@ module "step_function" {
 
   tags = var.tags
 
-  depends_on = [module.face_recognition_function.function_arn]
+  depends_on = [module.face_recognition_function.function_arn, module.send_callback_function.function_arn, module.results_table.dynamodb_table_arn]
 }
 
 resource "aws_iam_role" "step_function_execution" {

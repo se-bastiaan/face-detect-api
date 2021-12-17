@@ -36,3 +36,11 @@ module "face_recognition_function" {
   memory_size     = 1024
 }
 
+module "send_callback_function" {
+  name            = "send-callback"
+  source          = "./modules/lambda-function"
+  bucket          = aws_s3_bucket.deploy.bucket
+  api_gateway_arn = module.api_gateway.apigatewayv2_api_execution_arn
+  tags            = var.tags
+  prefix          = var.prefix
+}
