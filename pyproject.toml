@@ -7,6 +7,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
+boto3 = "^1.20.24"
 
 [tool.poetry.dev-dependencies]
 face-recognition = "^1.3.0"

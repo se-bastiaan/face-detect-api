@@ -25,8 +25,17 @@ module "api_gateway" {
 
   integrations = {
     "$default" = {
-      lambda_arn             = module.face_recognition_function.function_arn
-      payload_format_version = "2.0"
+      integration_type    = "AWS_PROXY"
+      integration_subtype = "StepFunctions-StartExecution"
+      credentials_arn     = aws_iam_role.step_function_execution.arn
+
+      # Note: jsonencode is used to pass argument as a string
+      request_parameters = jsonencode({
+        Input           = "$request.body",
+        StateMachineArn = module.step_function.state_machine_arn
+      })
+
+      payload_format_version = "1.0"
       timeout_milliseconds   = 12000
     }
   }

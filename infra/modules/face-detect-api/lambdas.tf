@@ -1,3 +1,21 @@
+resource "aws_s3_bucket" "deploy" {
+  bucket        = "${var.prefix}-terraform-lambda-deploys"
+  acl           = "private"
+  force_destroy = "true"
+  tags          = var.tags
+
+  lifecycle_rule {
+    id      = "expiration"
+    enabled = true
+
+    tags = var.tags
+
+    expiration {
+      days = 1
+    }
+  }
+}
+
 module "face_recognition_dependency" {
   source               = "./modules/lambda-dependency-layer"
   package_name         = "face-recognition"
@@ -17,3 +35,4 @@ module "face_recognition_function" {
   prefix          = var.prefix
   memory_size     = 1024
 }
+
