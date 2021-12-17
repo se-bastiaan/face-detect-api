@@ -2,12 +2,17 @@ variable "prefix" {
   type = string
 }
 
-variable "domain_name" {
+variable "bucket" {
   type = string
 }
 
-variable "stage" {
+variable "package_name" {
   type = string
+}
+
+variable "install_dependencies" {
+  type = bool
+  default = false
 }
 
 variable "tags" {
