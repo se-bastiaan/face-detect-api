@@ -39,8 +39,23 @@ module "face_recognition_function" {
 module "send_callback_function" {
   name            = "send-callback"
   source          = "./modules/lambda-function"
+  layers          = [module.face_recognition_dependency.layer_arn]
   bucket          = aws_s3_bucket.deploy.bucket
   api_gateway_arn = module.api_gateway.apigatewayv2_api_execution_arn
   tags            = var.tags
   prefix          = var.prefix
+
+  attach_policy_statements = true
+  policy_statements = {
+    dynamodb = {
+      effect = "Allow",
+      actions = [
+        "dynamodb:BatchWriteItem",
+        "dynamodb:GetItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query"
+      ],
+      resources = [module.results_table.dynamodb_table_arn]
+    }
+  }
 }

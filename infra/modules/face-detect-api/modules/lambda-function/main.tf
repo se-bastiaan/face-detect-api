@@ -21,6 +21,7 @@ module "lambda_function" {
       commands = [
         ":zip",
         "cd ${local.root_directory}",
+        "rm -rf ${local.root_directory}/${var.name}-lambda-reqs",
         "mkdir ${local.root_directory}/${var.name}-lambda-reqs",
         "poetry export --format requirements.txt --without-hashes > ${local.root_directory}/${var.name}-lambda-reqs/requirements.txt",
         "cd ${local.root_directory}/${var.name}-lambda-reqs",
