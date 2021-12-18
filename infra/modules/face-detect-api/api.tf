@@ -23,22 +23,11 @@ module "api_gateway" {
   default_stage_access_log_destination_arn = aws_cloudwatch_log_group.logs.arn
   default_stage_access_log_format          = "$context.identity.sourceIp - $context.requestTime - $context.routeKey $context.protocol - $context.status $context.responseLength $context.requestId $context.integrationErrorMessage"
 
-  integrations = {
-    "$default" = {
-      integration_type    = "AWS_PROXY"
-      integration_subtype = "StepFunctions-StartExecution"
-      credentials_arn     = aws_iam_role.step_function_execution.arn
-
-      # Note: jsonencode is used to pass argument as a string
-      request_parameters = jsonencode({
-        Input           = "$request.body",
-        StateMachineArn = module.step_function.state_machine_arn
-      })
-
-      payload_format_version = "1.0"
-      timeout_milliseconds   = 12000
-    }
-  }
+  body = templatefile("${path.module}/api.yaml", {
+    step_function_credentials = aws_iam_role.step_function_execution.arn
+    step_function_arn = module.step_function.state_machine_arn
+    prefix = var.prefix
+  })
 
   tags = var.tags
 }
